@@ -5,6 +5,7 @@ RUN apt-get update && \
 	apt-get install -y \
     	build-essential \
     	wget \ 
+        libpng-dev \ 
     	libfontconfig1-dev \
     	libdbus-1-dev \
     	libfreetype6-dev \
@@ -21,20 +22,22 @@ RUN apt-get update && \
     	libgstreamer-plugins-base0.10-dev \
     	gstreamer-tools \
     	gstreamer0.10-plugins-good \
-    	gstreamer0.10-plugins-bad \
+    	#gstreamer0.10-plugins-bad \
     	libraspberrypi-dev \
     	libpulse-dev \
     	libx11-dev \
     	libglib2.0-dev \
+        libtiff-dev \
+        libjpeg62-turbo-dev \
+        libjpeg-dev \
     	libcups2-dev \
+        libcupsimage2-dev \
     	freetds-dev \
     	libsqlite0-dev \
     	libpq-dev \
     	libiodbc2-dev \
-    	libmysqlclient-dev \
+    	#libmysqlclient-dev \
     	firebird-dev \
-    	libpng12-dev \
-    	libjpeg9-dev \
     	libgst-dev \
     	libxext-dev \
     	libxcb1 \
@@ -62,7 +65,8 @@ RUN apt-get update && \
     	libdrm-dev \
     	libssl-dev \
     	libxcb-xinerama0 \
-    	libxcb-xinerama0-dev \
-    rm -rf /var/lib/apt/lists/*
+    	libxcb-xinerama0-dev \   
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 
