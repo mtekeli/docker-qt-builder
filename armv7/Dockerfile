@@ -4,6 +4,7 @@ MAINTAINER Mustafa Tekeli <mustafatekeli.mt@gmail.com>
 RUN apt-get update && \
 	apt-get install -y \
     	build-essential \
+        curl \
     	wget \ 
         libpng-dev \ 
     	libfontconfig1-dev \
@@ -68,5 +69,13 @@ RUN apt-get update && \
     	libxcb-xinerama0-dev \   
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+    RUN curl -sSL http://download.qt.io/official_releases/qt/5.11/5.11.2/submodules/qtbase-everywhere-src-5.11.2.tar.xz | tar xJ \
+    && cd /qtbase-everywhere-src-5.11.2 \
+    && bash ./configure --help \
+    && bash ./configure -no-pch -no-compile-examples -nomake examples -v -opengl es2 -device linux-rasp-pi-g''+ -device-option CROSS_COMPILE=/usr/bin/ -opensource -confirm-license -optimized-qmake -reduce-exports -release -qt-pcre -make libs -prefix /usr/local/qt5 &> output
+
+    CMD ["/usr/bin/bash"]
+
 
 
