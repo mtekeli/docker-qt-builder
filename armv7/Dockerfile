@@ -6,6 +6,10 @@ RUN apt-get update && \
     	build-essential \
         curl \
     	wget \ 
+    	libgl1-mesa-dev \
+		libglu1-mesa-dev \
+		libegl1-mesa \
+		libegl1-mesa-dev \
         libpng-dev \ 
     	libfontconfig1-dev \
     	libdbus-1-dev \
@@ -70,12 +74,24 @@ RUN apt-get update && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-    RUN curl -sSL http://download.qt.io/official_releases/qt/5.11/5.11.2/submodules/qtbase-everywhere-src-5.11.2.tar.xz | tar xJ \
-    && cd /qtbase-everywhere-src-5.11.2 \
-    && bash ./configure --help \
-    && bash ./configure -no-pch -no-compile-examples -nomake examples -v -opengl es2 -device linux-rasp-pi-g''+ -device-option CROSS_COMPILE=/usr/bin/ -opensource -confirm-license -optimized-qmake -reduce-exports -release -qt-pcre -make libs -prefix /usr/local/qt5 &> output
+ENV QT_VERSION_MAJOR 5.11
+ENV QT_VERSION 5.11.2
 
-    CMD ["/usr/bin/bash"]
+ENV QT_DIST /usr/local/Qt-"$QT_VERSION"
+ENV QT_BASE_SRC http://download.qt.io/official_releases/qt/"$QT_VERSION_MAJOR"/"$QT_VERSION"/submodules/qtbase-everywhere-src-"$QT_VERSION".tar.xz
+ENV QT_BASE_DIR /qtbase-everywhere-src-"$QT_VERSION"
+
+RUN curl -sSL $QT_BASE_SRC | tar xJ \
+    && cd $QT_BASE_DIR \
+    && bash ./configure --help \
+    && bash ./configure -v -no-pch -opensource -confirm-license \
+       -no-harfbuzz -openssl-linked -qt-pcre -no-dbus -nomake tools \
+       -no-xkbcommon-evdev -no-xinput2 -no-xcb-xlib -no-glib -qt-xcb -no-compile-examples -nomake examples \
+       -no-gif -qt-doubleconversion -no-gtk \
+    && make \
+    && make install
+
+ENV PATH $QT_DIST/bin:$PATH
 
 
 
