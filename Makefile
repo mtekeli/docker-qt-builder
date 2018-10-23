@@ -1,7 +1,6 @@
 IMG := mustafatekeli/qtbuilder
-TAG_RPI := 1-rpi
-TAG_UBUNTU := 1-amd64
-#RPI_HOST := ${RPI_HOST}
+TAG_RPI := qt5.11.2-rpi
+TAG_UBUNTU := qt5.11.2-amd64
 
 .PHONY: build-rpi, build-cross-rpi
 
@@ -10,7 +9,10 @@ build-rpi:
 	@ docker push ${IMG}:${TAG_RPI}
 
 build-cross-rpi:
-	@ docker build \
-		--build-arg RPI_HOST=${RPI_HOST} \
-		-t=${IMG}:${TAG_RPI} amd64
+	@ rm -rf amd64/.ssh
+	@ mkdir amd64/.ssh
+	@ cp ${SSH_KEY_FILE} ./amd64/.ssh/id_rsa
+	@ docker build -t=${IMG}:${TAG_UBUNTU} amd64 \
+		--build-arg RPI_HOST=${RPI_HOST}
 	@ docker push ${IMG}:${TAG_UBUNTU}
+	@ rm -rf amd64/.ssh

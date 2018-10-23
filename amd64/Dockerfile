@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:16.04 as intermediate
 MAINTAINER Mustafa Tekeli <mustafatekeli.mt@gmail.com>
 
 RUN apt-get update && \
@@ -6,6 +6,7 @@ RUN apt-get update && \
     	build-essential \
         curl \
         git \
+        libc-dev \
         python \
         rsync \
     	wget \ 
@@ -15,40 +16,90 @@ RUN apt-get update && \
 ARG RPI_HOST
 RUN echo "$RPI_HOST"
 
-# prepare cross-compile toolchain
-RUN mkdir ~/raspi \
-	&& cd ~/raspi \
-	&& git clone https://github.com/raspberrypi/tools
+# add credentials on build
+ARG SSH_PRIVATE_KEY
+RUN echo "$SSH_PRIVATE_KEY"
+
+ENV RPI_DIR 			/root/raspi
+ENV QT_VERSION_MAJOR	5.11
+ENV QT_VERSION 			5.11.2
+ENV QT_DIST 			/usr/local/Qt-"$QT_VERSION"
+ENV QT_BASE_SRC 		http://download.qt.io/official_releases/qt/"$QT_VERSION_MAJOR"/"$QT_VERSION"/submodules/qtbase-everywhere-src-"$QT_VERSION".tar.xz
+ENV QT_BASE_DIR			"$RPI_DIR"/qtbase-everywhere-src-"$QT_VERSION"
+ENV SYS_ROOT			"$RPI_DIR"/sysroot
+ENV TOOLS_DIR			"$RPI_DIR"/tools
+ENV DEV_BINS			"$RPI_DIR"/qt5pi
+ENV HOST_BINS			"$RPI_DIR"/qt5
+
+COPY .ssh/id_rsa /root/.ssh/id_rsa
+RUN cat /root/.ssh/id_rsa
+
+# make sure your domain is accepted
+RUN touch /root/.ssh/known_hosts
+RUN ssh-keyscan 192.168.1.7 >> /root/.ssh/known_hosts
 
 # create a sysroot
-RUN mkdir sysroot sysroot/usr sysroot/opt \
-	&& rsync -avz "$RPI_HOST":/lib sysroot \
-	&& rsync -avz "$RPI_HOST":/usr/include sysroot/usr \
-	&& rsync -avz "$RPI_HOST":/usr/lib sysroot/usr \
-	&& rsync -avz "$RPI_HOST":/opt/vc sysroot/opt
+RUN mkdir -p "$RPI_DIR" \
+	&& cd "$RPI_DIR" \
+	&& mkdir "$SYS_ROOT" "$SYS_ROOT"/usr "$SYS_ROOT"/opt \
+	&& ls -lah \
+	&& rsync -avz "$RPI_HOST":/lib "$SYS_ROOT" \
+	&& rsync -avz "$RPI_HOST":/usr/include "$SYS_ROOT"/usr \
+	&& rsync -avz "$RPI_HOST":/usr/lib "$SYS_ROOT"/usr \
+	&& rsync -avz "$RPI_HOST":/opt/vc "$SYS_ROOT"/opt
 
 # adjust symlinks to be relative
-RUN wget https://raw.githubusercontent.com/riscv/riscv-poky/priv-1.10/scripts/sysroot-relativelinks.py \
+RUN cd "$RPI_DIR" \
+	&& wget https://raw.githubusercontent.com/riscv/riscv-poky/priv-1.10/scripts/sysroot-relativelinks.py \
 	&& chmod +x sysroot-relativelinks.py \
-	&& ./sysroot-relativelinks.py sysroot
+	&& python ./sysroot-relativelinks.py "$SYS_ROOT"
 
-ENV QT_VERSION_MAJOR 5.11
-ENV QT_VERSION 5.11.2
+# prepare cross-compile toolchain
+RUN cd "$RPI_DIR" \
+	&& ls -lah \
+	&& git clone https://github.com/raspberrypi/tools \
+	&& ls -lah "$TOOLS_DIR"/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-*
 
-ENV QT_DIST /usr/local/Qt-"$QT_VERSION"
-ENV QT_BASE_SRC http://download.qt.io/official_releases/qt/"$QT_VERSION_MAJOR"/"$QT_VERSION"/submodules/qtbase-everywhere-src-"$QT_VERSION".tar.xz
-ENV QT_BASE_DIR /qtbase-everywhere-src-"$QT_VERSION"
+RUN cd "$RPI_DIR" \
+	&& curl -sSL $QT_BASE_SRC | tar xJ
 
-RUN curl -sSL $QT_BASE_SRC | tar xJ \
-    && cd $QT_BASE_DIR \
-    && bash ./configure --help \
-    && bash ./configure -release -opengl es2 -device linux-rasp-pi3-g++ -device-option CROSS_COMPILE=~/raspi/tools/ \
-    arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf- -sysroot ~/raspi/sysroot -opensource -confirm-license -make libs -prefix \
-    /usr/local/qt5pi -extprefix ~/raspi/qt5pi -hostprefix ~/raspi/qt5 -v -no-use-gold-linker -no-gbm \
-    && make \
-    && make install
+RUN cd "$QT_BASE_DIR" \
+	&& pwd \
+	&& ls -lah \
+	&& bash ./configure --help
+
+RUN cd "$QT_BASE_DIR" \
+	&& pwd \
+	&& ls -lah \
+	&& ./configure -release -opengl es2 -device linux-rasp-pi-g++ -device-option CROSS_COMPILE="$TOOLS_DIR"/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf- -sysroot "$SYS_ROOT" -opensource -confirm-license -make libs -prefix /usr/local/qt5pi -extprefix "$DEV_BINS" -hostprefix "$HOST_BINS" -v -no-use-gold-linker -no-gbm
+
+RUN cd "$QT_BASE_DIR" \
+	&& make
+
+RUN cd "$QT_BASE_DIR" \
+	&& make install
 
 # deploy Qt to the device
-RUN rsync -avz qt5pi "$RPI_HOST":/usr/local
+RUN cd "$RPI_DIR" \
+	&& rsync -avz qt5pi "$RPI_HOST":/usr/local
 
-#ENV PATH $QT_DIST/bin:$PATH
+
+FROM ubuntu:18.10
+
+RUN mkdir -p /root/raspi \
+	&& cd /root/raspi \
+	&& ls -lah \
+	&& echo ${RPI_HOST1} \
+	&& echo "$DEV_BINS" \
+	&& echo "$HOST_BINS"
+
+# copy the repository form the previous image
+COPY --from=intermediate /root/raspi/qt5pi /root/raspi/qt5pi
+COPY --from=intermediate /root/raspi/qt5 /root/raspi/qt5
+
+RUN cd /root/raspi \
+	&& ls -lah \
+	&& ls -lah ./qt5pi \
+	&& ls -lah ./qt5
+
+
