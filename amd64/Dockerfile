@@ -2,6 +2,7 @@ ARG RPI_HOST
 ARG RPI_DIR=/root/raspi
 ARG DEV_BINS=${RPI_DIR}/qt5pi
 ARG HOST_BINS=${RPI_DIR}/qt5
+ARG TOOLS_DIR=${RPI_DIR}/tools
 
 FROM ubuntu:16.04 as intermediate
 LABEL maintainer="Mustafa Tekeli <mustafatekeli.mt@gmail.com>"
