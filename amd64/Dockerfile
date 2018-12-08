@@ -29,7 +29,6 @@ ENV QT_DIST 			/usr/local/Qt-${QT_VERSION}
 ENV QT_BASE_SRC 		http://download.qt.io/official_releases/qt/${QT_VERSION_MAJOR}/${QT_VERSION}/submodules/qtbase-everywhere-src-${QT_VERSION}.tar.xz
 ENV QT_BASE_DIR			${RPI_DIR}/qtbase-everywhere-src-${QT_VERSION}
 ENV SYS_ROOT			${RPI_DIR}/sysroot
-ENV TOOLS_DIR			${RPI_DIR}/tools
 
 # copy over the ssh profile to connect to rpi
 COPY .ssh/id_rsa /root/.ssh/id_rsa
