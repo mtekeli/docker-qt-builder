@@ -93,6 +93,7 @@ RUN mkdir -p ${RPI_DIR}
 # copy the repository form the previous image
 COPY --from=intermediate ${DEV_BINS} ${DEV_BINS}
 COPY --from=intermediate ${HOST_BINS} ${HOST_BINS}
+COPY --from=intermediate ${TOOLS_DIR} ${TOOLS_DIR}
 
 RUN cd ${RPI_DIR} \
 	&& ls -lah \
