@@ -1,11 +1,15 @@
 IMG := mustafatekeli/qtbuilder
-TAG_RPI := qt5.11.2-rpi
-TAG_UBUNTU := qt5.11.2-amd64
+TAG_RPI := qt5.11.3-rpi
+TAG_UBUNTU := qt5.11.3-amd64
 
-.PHONY: build-rpi, build-cross-rpi, clean
+.PHONY: build-rpi, build-cross-rpi, clean, clean-docker-images
 
 clean:
 	@ rm -rf amd64/.ssh
+
+#clean-docker-images:
+	#@ docker rm ${docker ps -q -f 'status=exited'}
+ 	#@ docker rmi ${docker images -q -f 'dangling=true'}
 
 build-rpi:
 	@ docker build -t=${IMG}:${TAG_RPI} armv7
@@ -16,5 +20,5 @@ build-cross-rpi: clean
 	@ cp ${SSH_KEY_FILE} ./amd64/.ssh/id_rsa
 	@ docker build -t=${IMG}:${TAG_UBUNTU} amd64 \
 		--build-arg RPI_HOST=${RPI_HOST}
-	@ docker push ${IMG}:${TAG_UBUNTU}
 	@ make clean
+	@ docker push ${IMG}:${TAG_UBUNTU}
