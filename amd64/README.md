@@ -1,3 +1,8 @@
+Build your image to have necessary environment to cross-compile your Qt application. Follow the steps below to make use of this repository.
+
+Pre-built images can be found here:
+https://cloud.docker.com/repository/docker/mustafatekeli/qtbuilder/general
+
 # Install a fresh Raspbian Stretch image
 1. Download the image from https://downloads.raspberrypi.org/raspbian_latest
 2. Unzip it
