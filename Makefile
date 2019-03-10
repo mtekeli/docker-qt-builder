@@ -1,6 +1,6 @@
 IMG := mustafatekeli/qtbuilder
-TAG_RPI := qt5.11.3-rpi
-TAG_UBUNTU := qt5.11.3-amd64
+TAG_RPI := qt5.12.1-rpi
+TAG_UBUNTU := qt5.12.1-amd64
 
 .PHONY: build-rpi, build-cross-rpi, clean, clean-docker-images
 
