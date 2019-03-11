@@ -94,7 +94,6 @@ RUN cat ${RPI_DIR}/qtbase-everywhere-src-${QT_VERSION}/mkspecs/devices/linux-ras
 RUN cd ${QT_BASE_DIR} \
 	&& pwd \
 	&& ls -lah \
-	#./configure -release -opengl es2 -device linux-rasp-pi3-g++ -device-option CROSS_COMPILE=/home/mustafa/test/raspi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf- -sysroot /home/mustafa/test/raspi/sysroot -opensource -confirm-license -make libs -prefix /usr/local/qt5pi -extprefix /home/mustafa/test/raspi/qt5pi -hostprefix /home/mustafa/test/raspi/qt5 -no-use-gold-linker -no-gbm -v
 	&& ./configure -release -opengl es2 -device linux-rasp-pi3-g++ -device-option CROSS_COMPILE=${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf- -sysroot ${SYS_ROOT} -opensource -confirm-license -make libs -prefix /usr/local/qt5pi -extprefix ${DEV_BINS} -hostprefix ${HOST_BINS} -no-use-gold-linker -no-gbm -v
 	#&& ./configure -release -opengl es2 -device linux-rasp-pi3-g++ -device-option CROSS_COMPILE=${TOOLS_DIR}/gcc-linaro-6.5.0-2018.12-x86_64_armv8l-linux-gnueabihf/bin/armv8l-linux-gnueabihf- -sysroot ${SYS_ROOT} -opensource -confirm-license -make libs -prefix /usr/local/qt5pi -extprefix ${DEV_BINS} -hostprefix ${HOST_BINS} -no-use-gold-linker -no-gbm
 
