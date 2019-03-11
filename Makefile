@@ -2,7 +2,7 @@ IMG := mustafatekeli/qtbuilder
 TAG_RPI := qt5.12.1-rpi
 TAG_UBUNTU := qt5.12.1-amd64-rpi-cross-compile
 
-.PHONY: build-rpi, build-cross-rpi, clean, clean-docker-images
+.PHONY: build-rpi, build-cross-rpi, clean, push-cross-rpi
 
 clean:
 	@ rm -rf amd64/.ssh
@@ -21,4 +21,6 @@ build-cross-rpi: clean
 	@ docker build -t=${IMG}:${TAG_UBUNTU} amd64 \
 		--build-arg RPI_HOST=${RPI_HOST}
 	@ make clean
+
+push-cross-rpi:
 	@ docker push ${IMG}:${TAG_UBUNTU}
