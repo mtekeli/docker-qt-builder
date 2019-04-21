@@ -114,18 +114,16 @@ ARG RPI_DIR
 ARG DEV_BINS
 ARG HOST_BINS
 ARG TOOLS_DIR
-ARG TOOL_DIR
+ARG SYS_ROOT
 
-RUN mkdir -p ${RPI_DIR}
-RUN mkdir -p ${TOOL_DIR}
+RUN mkdir -p ${RPI_DIR} 
 
 # copy the repository form the previous image
 COPY --from=intermediate ${DEV_BINS} ${DEV_BINS}
 COPY --from=intermediate ${HOST_BINS} ${HOST_BINS}
-COPY --from=intermediate ${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64 ${TOOL_DIR}
+COPY --from=intermediate ${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64 \
+	${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64
+COPY --from=intermediate ${TOOLS_DIR}/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf \
+	${TOOLS_DIR}/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf
+COPY --from=intermediate ${SYS_ROOT} ${SYS_ROOT}
 
-RUN cd ${RPI_DIR} \
-	&& ls -lah \
-	&& ls -lah ${DEV_BINS} \
-	&& ls -lah ${HOST_BINS} \
-	&& ls -lah ${TOOL_DIR}
