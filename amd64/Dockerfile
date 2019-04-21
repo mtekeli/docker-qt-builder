@@ -127,3 +127,12 @@ COPY --from=intermediate ${TOOLS_DIR}/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf 
 	${TOOLS_DIR}/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf
 COPY --from=intermediate ${SYS_ROOT} ${SYS_ROOT}
 
+COPY utils/install-to-device.sh ${RPI_DIR}
+RUN chmod +x ${RPI_DIR}/install-to-device.sh
+
+RUN apt-get update && \
+	apt-get install -y \
+	ssh \
+	rsync \
+	&& apt-get clean \
+	&& rm -rf /var/lib/apt/lists/*
