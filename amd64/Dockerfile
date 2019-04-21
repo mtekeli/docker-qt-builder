@@ -76,7 +76,7 @@ RUN cd ${RPI_DIR} \
 	&& ls -l
 
 ENV QT_VERSION_MAJOR     5.12
-ENV QT_VERSION           5.12.2
+ENV QT_VERSION           5.12.3
 ENV QT_DIST              /usr/local/Qt-${QT_VERSION}
 ENV QT_BASE_SRC          http://download.qt.io/official_releases/qt/${QT_VERSION_MAJOR}/${QT_VERSION}/submodules/qtbase-everywhere-src-${QT_VERSION}.tar.xz
 ENV QT_BASE_DIR          ${RPI_DIR}/qtbase-everywhere-src-${QT_VERSION}
