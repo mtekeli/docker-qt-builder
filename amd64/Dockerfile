@@ -37,7 +37,7 @@ RUN echo ${RPI_VER}
 RUN rm -rf /root/.ssh/id_rsa
 COPY .ssh/id_rsa /root/.ssh/id_rsa
 RUN chmod 400 /root/.ssh/id_rsa
-COPY qmake.conf ${RPI_DIR}/qmake.conf
+COPY /rpi3-qmake-config/qmake.conf ${RPI_DIR}/qmake.conf
 RUN cat ${RPI_DIR}/qmake.conf
 
 # make sure your domain is accepted
