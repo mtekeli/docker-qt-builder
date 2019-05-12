@@ -1,6 +1,6 @@
 IMG := mustafatekeli/qtbuilder
-TAG_RPI := rpi-base-5.12.3
-TAG_UBUNTU := amd64-rpi-cross-compile-base-5.12.3
+TAG_RPI := rpi-base-5.12.3-1
+TAG_UBUNTU := amd64-rpi-cross-compile-base-5.12.3-1
 
 .PHONY: build-rpi, build-cross-rpi, clean, push-cross-rpi
 

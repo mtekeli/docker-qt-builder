@@ -132,6 +132,7 @@ RUN chmod +x ${RPI_DIR}/install-to-device.sh
 
 RUN apt-get update && \
 	apt-get install -y \
+	build-essential \
 	ssh \
 	rsync \
 	&& apt-get clean \
