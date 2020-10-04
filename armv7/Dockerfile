@@ -1,5 +1,13 @@
+ARG QT_VERSION_MAJOR
+ARG QT_VERSION_MINOR
+ARG QT_VERSION=${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}
+
 FROM resin/rpi-raspbian:stretch
-MAINTAINER Mustafa Tekeli <mustafatekeli.mt@gmail.com>
+LABEL maintainer="Mustafa Tekeli mustafatekeli.mt@gmail.com"
+
+ARG QT_VERSION_MAJOR
+ARG QT_VERSION_MINOR
+ARG QT_VERSION
 
 RUN apt-get update && \
 	apt-get install -y \
@@ -73,9 +81,6 @@ RUN apt-get update && \
     	libxcb-xinerama0-dev \   
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-ENV QT_VERSION_MAJOR 5.11
-ENV QT_VERSION 5.11.2
 
 ENV QT_DIST /usr/local/Qt-"$QT_VERSION"
 ENV QT_BASE_SRC http://download.qt.io/official_releases/qt/"$QT_VERSION_MAJOR"/"$QT_VERSION"/submodules/qtbase-everywhere-src-"$QT_VERSION".tar.xz

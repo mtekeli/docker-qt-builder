@@ -25,6 +25,7 @@ RUN apt-get update && \
 	&& rm -rf /var/lib/apt/lists/*
 
 ARG QT_VERSION_MAJOR
+ARG QT_VERSION_MINOR
 ARG QT_VERSION
 ARG RPI_HOST
 ARG RPI_VER
@@ -40,20 +41,7 @@ RUN echo ${QT_VERSION_MAJOR}
 RUN echo ${QT_VERSION_MINOR}
 RUN echo ${QT_VERSION}
 
-# copy over the ssh profile to connect to rpi
-RUN rm -rf /root/.ssh/id_rsa || true
-COPY .ssh/id_rsa /root/.ssh/id_rsa
-RUN chmod 400 /root/.ssh/id_rsa
 COPY /rpi3-qmake-config/qmake.conf ${RPI_DIR}/qmake.conf
-RUN cat ${RPI_DIR}/qmake.conf
-
-# make sure your domain is accepted
-RUN touch /root/.ssh/known_hosts
-RUN ssh-keyscan ${RPI_HOST} >> /root/.ssh/known_hosts
-
-# prepare our target directory
-RUN ssh pi@${RPI_HOST} 'sudo mkdir -p /usr/local/qt5pi'
-RUN ssh pi@${RPI_HOST} 'sudo chown pi:pi /usr/local/qt5pi'
 
 # adjust symlinks to be relative
 RUN cd ${RPI_DIR} \
@@ -86,14 +74,10 @@ RUN cd ${QT_BASE_DIR} \
 	&& ./configure -release -opengl es2 -device linux-rasp-pi3-g++ -device-option CROSS_COMPILE=${TOOLS_DIR}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf- -sysroot ${SYS_ROOT} -opensource -confirm-license -make libs -prefix /usr/local/qt5pi -extprefix ${DEV_BINS} -hostprefix ${HOST_BINS} -no-use-gold-linker -no-gbm -v
 
 RUN cd ${QT_BASE_DIR} \
-	&& make -j4
+	&& make -j8
 
 RUN cd ${QT_BASE_DIR} \
 	&& make install
-
-# deploy Qt to the device
-RUN cd ${RPI_DIR} \
-	&& rsync -avz qt5pi pi@${RPI_HOST}:/usr/local
 
 
 FROM ubuntu:18.04
