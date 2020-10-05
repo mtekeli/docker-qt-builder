@@ -1,5 +1,13 @@
-FROM resin/rpi-raspbian:stretch
-MAINTAINER Mustafa Tekeli <mustafatekeli.mt@gmail.com>
+ARG QT_VERSION_MAJOR
+ARG QT_VERSION_MINOR
+ARG QT_VERSION=${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}
+
+FROM raspbian/stretch:latest
+LABEL maintainer="Mustafa Tekeli mustafatekeli.mt@gmail.com"
+
+ARG QT_VERSION_MAJOR
+ARG QT_VERSION_MINOR
+ARG QT_VERSION
 
 RUN apt-get update && \
 	apt-get install -y \
@@ -74,24 +82,20 @@ RUN apt-get update && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-ENV QT_VERSION_MAJOR 5.11
-ENV QT_VERSION 5.11.2
+ENV QT_DIST /usr/local/Qt-${QT_VERSION}
+ENV QT_BASE_SRC http://download.qt.io/official_releases/qt/${QT_VERSION_MAJOR}/${QT_VERSION}/submodules/qtbase-everywhere-src-${QT_VERSION}.tar.xz
+ENV QT_BASE_DIR /qtbase-everywhere-src-${QT_VERSION}
 
-ENV QT_DIST /usr/local/Qt-"$QT_VERSION"
-ENV QT_BASE_SRC http://download.qt.io/official_releases/qt/"$QT_VERSION_MAJOR"/"$QT_VERSION"/submodules/qtbase-everywhere-src-"$QT_VERSION".tar.xz
-ENV QT_BASE_DIR /qtbase-everywhere-src-"$QT_VERSION"
-
-RUN curl -sSL $QT_BASE_SRC | tar xJ \
-    && cd $QT_BASE_DIR \
+RUN echo ${QT_BASE_SRC}
+RUN curl -sSL ${QT_BASE_SRC} | tar xJ
+RUN cd ${QT_BASE_DIR} \
     && bash ./configure --help \
-    && bash ./configure -v -no-pch -opensource -confirm-license \
-       -no-harfbuzz -openssl-linked -qt-pcre -no-dbus -nomake tools \
-       -no-xkbcommon-evdev -no-xinput2 -no-xcb-xlib -no-glib -qt-xcb -no-compile-examples -nomake examples \
-       -no-gif -qt-doubleconversion -no-gtk \
-    && make \
+    && bash ./configure -v -no-pch -opensource -confirm-license -release \
+       -no-harfbuzz -qt-pcre -evdev -no-dbus -nomake tools \
+       -no-compile-examples -nomake examples \
+       -skip qtwayland -skip qtwebengine -system-freetype -fontconfig -glib
+RUN cd ${QT_BASE_DIR} \
+    && make -j2 \
     && make install
 
-ENV PATH $QT_DIST/bin:$PATH
-
-
-
+ENV PATH ${QT_DIST}/bin:$PATH
